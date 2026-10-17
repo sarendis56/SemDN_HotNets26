@@ -1,0 +1,21 @@
+
+# datasets, models and experiment outputs (may be symlinks to a large disk)
+/data
+
+# secrets / local env
+.env
+*.env
+!.env.example
+
+# python
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.ruff_cache/
+.pytest_cache/
+
+# experiment outputs
+/outputs/
+
+/models
