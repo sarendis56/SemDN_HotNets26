@@ -9,12 +9,12 @@ M32=Qwen/Qwen3-32B
 G=data/e4
 
 echo "=== select: coherent chunks, e5, live web ==="
-on_gpus 1 uv run python -m scdn.e4_granularity --stage select --encoder e5 --chunker coherent
+on_gpus 1 uv run python -m semdn.e4_granularity --stage select --encoder e5 --chunker coherent
 P=$G/pool_coherent.jsonl
 
 echo "=== readers ==="
-on_gpus 1 uv run python -m scdn.e4_answer --pool "$P" --out $G/granularity_quality_coherent.jsonl
-on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" --pool "$P" --out $G/granularity_quality_coherent_q3.jsonl
+on_gpus 1 uv run python -m semdn.e4_answer --pool "$P" --out $G/granularity_quality_coherent.jsonl
+on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" --pool "$P" --out $G/granularity_quality_coherent_q3.jsonl
 
 echo "=== judge ==="
 bash scripts/lib/judge_robust.sh \

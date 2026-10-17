@@ -15,9 +15,9 @@ import re
 import sys
 from multiprocessing import Pool
 
-from scdn import paths
-from scdn.e4_crag_t3 import reservoir_sample
-from scdn.e4_isobudget import has_answer as found, norm, usable_answers
+from semdn import paths
+from semdn.e4_crag_t3 import reservoir_sample
+from semdn.e4_isobudget import has_answer as found, norm, usable_answers
 
 E4 = paths.DATA_ROOT / "e4"
 SRC = paths.DATA_ROOT / "datasets" / "crag" / "crag_task_3_dev_v4"

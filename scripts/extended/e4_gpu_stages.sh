@@ -9,7 +9,7 @@ until grep -q "RESILIENT FETCH DONE" data/e4/logs/e4g_fetch_driver.log 2>/dev/nu
   sleep 30
 done
 echo "=== fetch done -> select (cuda:1) ==="
-on_gpus 1 uv run python -m scdn.e4_granularity --stage select --device cuda
+on_gpus 1 uv run python -m semdn.e4_granularity --stage select --device cuda
 echo "=== select done -> reader (cuda:1) ==="
-on_gpus 1 uv run python -m scdn.e4_answer
+on_gpus 1 uv run python -m semdn.e4_answer
 echo "=== E4 ANSWER DONE ==="

@@ -16,11 +16,11 @@ mkdir -p data/e1/logs
 pids=()
 for ds in $DATASETS; do
   grep -q "^wrote " "data/e1/logs/matrix_${TAG}${ds}.log" 2>/dev/null && continue   # finished earlier
-  ON_GPUS_WAIT=1 on_gpus 1 30000 uv run python -m scdn.e1_matrix --datasets "$ds" --n "$N" --tag "$TAG" \
+  ON_GPUS_WAIT=1 on_gpus 1 30000 uv run python -m semdn.e1_matrix --datasets "$ds" --n "$N" --tag "$TAG" \
     > "data/e1/logs/matrix_${TAG}${ds}.log" 2>&1 &
   pids+=($!)
   [ "$ds" = "${DATASETS##* }" ] || sleep 240   # let it load the reranker before the next picks a GPU
 done
 fail=0; for p in "${pids[@]}"; do wait "$p" || fail=1; done
 [ "$fail" = 0 ] || { echo "a retrieval process failed; see data/e1/logs/"; exit 1; }
-on_gpus 1 40000 uv run python -m scdn.e1_matrix_answer --tag "$TAG" --datasets "$(echo $DATASETS | tr ' ' ,)"
+on_gpus 1 40000 uv run python -m semdn.e1_matrix_answer --tag "$TAG" --datasets "$(echo $DATASETS | tr ' ' ,)"

@@ -12,8 +12,8 @@ import json
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from scdn import paths
-from scdn.cf_markdown import url_to_markdown
+from semdn import paths
+from semdn.cf_markdown import url_to_markdown
 
 E4 = paths.DATA_ROOT / "e4"
 OUT = E4 / "cf_recovered.jsonl"

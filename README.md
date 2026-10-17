@@ -11,7 +11,7 @@ The code and experiments measure three things:
 ## Repository layout
 
 ```
-src/scdn/          Python package: every experiment stage is a module, run as `python -m scdn.<module>`
+src/semdn/         Python package: every experiment stage is a module, run as `python -m semdn.<module>`
 scripts/
   setup/           download_data.sh (all models and datasets), sanity checks
   lib/             shared shell helpers: GPU picker (gpus.sh), robust 70B judge (judge_robust.sh)
@@ -25,7 +25,7 @@ data/              datasets, corpora, indexes, traces, and experiment outputs
 models/            model weights, one folder per Hugging Face id, e.g. models/Qwen/Qwen3-32B
 ```
 
-All code reaches artifacts through `src/scdn/paths.py`, relative to the repo root:
+All code reaches artifacts through `src/semdn/paths.py`, relative to the repo root:
 `data/...` for data and `models/<hf-id>` for weights. Both folders may be symlinks to a
 large disk. If a model is missing from `models/`, the code falls back to its Hugging Face
 id and downloads it into the Hugging Face cache.
@@ -43,7 +43,7 @@ bash scripts/setup/download_data.sh wiki18  # or one group: models | wiki18 | cr
 ```
 
 `download_data.sh` also builds what is derived from the downloads: it unpacks the wiki-18
-corpus, builds its metadata (`python -m scdn.corpus build`), and joins the split index files.
+corpus, builds its metadata (`python -m semdn.corpus build`), and joins the split index files.
 
 Optional checks: `uv run python scripts/setup/smoke_vllm.py` (the Search-R1 checkpoint loads
 and generates) and `uv run python scripts/setup/validate_recall.py` (HNSW64 search agrees with
@@ -70,7 +70,7 @@ Downloaded by `scripts/setup/download_data.sh`:
 | `models/meta-llama/Llama-3.1-70B-Instruct`                              | answer judge (CRAG's official)                       | HF, same id (gated)                               | 132 GB                           | CRAG quality                    |
 | `models/Qwen/Qwen3-Embedding-0.6B`, `models/Qwen/Qwen3-Reranker-0.6B` | other rankers                                        | HF, same ids                                      | 1.2 GB each                      | extended results                |
 | `data/corpus/wiki-18/`                                                  | wiki-18: 21M passages of about 100 words, 3.2M pages | HF dataset `PeterJinGo/wiki-18-corpus`          | 5.1 GB packed + 14.4 GB unpacked | E2, wiki-18 quality             |
-| `data/corpus/wiki-18-meta/`                                             | passage offsets, sizes, page ids                     | built: `python -m scdn.corpus build`            | 0.4 GB                           | same                            |
+| `data/corpus/wiki-18-meta/`                                             | passage offsets, sizes, page ids                     | built: `python -m semdn.corpus build`            | 0.4 GB                           | same                            |
 | `data/index/wiki-18-e5-flat/e5_Flat.index`                              | exact e5 index (raw 768-d vectors)                   | HF dataset `PeterJinGo/wiki-18-e5-index`        | 64.6 GB                          | E2 traces, wiki-18 quality      |
 | `data/index/wiki-18-e5-hnsw64/e5_HNSW64.index`                          | approximate index + its proximity graph              | HF dataset `PeterJinGo/wiki-18-e5-index-HNSW64` | 75.7 GB                          | E2 prefetch analyses            |
 | `data/datasets/flashrag/`                                               | HotpotQA, 2Wiki, MuSiQue, Bamboogle, NQ (dev/test)   | HF dataset `RUC-NLPIR/FlashRAG_datasets`        | 0.75 GB                          | E2, wiki-18 quality, E1 queries |
@@ -110,8 +110,8 @@ trafilatura of the same URLs.
 
 ```sh
 # prerequisite: live search results and plain fetches (needs SERP_API_KEY; network only)
-uv run python -m scdn.e4_granularity --stage serp
-uv run python -m scdn.e4_granularity --stage fetch            # plain GET + trafilatura
+uv run python -m semdn.e4_granularity --stage serp
+uv run python -m semdn.e4_granularity --stage fetch            # plain GET + trafilatura
 # cloud fetch (needs CF_ACCOUNT_ID / CF_API_TOKEN), then the report
 set -a; . ./.env; set +a
 uv run python scripts/fetchability/cf_fetch_pages.py --n 120 --topk 12 --max-calls 1500 --conc 8
@@ -126,8 +126,8 @@ cleaned text. The chunk arm keeps the five best e5 chunks across the five pages.
 
 ```sh
 uv run python scripts/e1_pagetax/build_queries.py                     # -> data/e1/queries.jsonl
-uv run python -m scdn.serp --queries data/e1/queries.jsonl --out data/e1/serp.jsonl   # needs SERP_API_KEY
-uv run python -m scdn.e1_fetch --serp data/e1/serp.jsonl --out data/e1/measure.jsonl --k 5
+uv run python -m semdn.serp --queries data/e1/queries.jsonl --out data/e1/serp.jsonl   # needs SERP_API_KEY
+uv run python -m semdn.e1_fetch --serp data/e1/serp.jsonl --out data/e1/measure.jsonl --k 5
 ```
 
 Live-web numbers drift as pages change.
@@ -141,7 +141,7 @@ multi-session request stream and replays it against chunk and URL-object caches.
 
 ```sh
 bash scripts/e2_locality/gen_traces.sh            # retrieval server on the flat index + 4 trace runs
-uv run python -m scdn.analyze --traces data/traces/full-t07-s{0,1,2}.jsonl
+uv run python -m semdn.analyze --traces data/traces/full-t07-s{0,1,2}.jsonl
 ```
 
 ### CRAG replication (§6.2 text)
@@ -150,7 +150,7 @@ Same agent and analysis over a shared e5 index of the pages CRAG provides for 1,
 questions (5,612 unique pages, 107,511 chunks).
 
 ```sh
-uv run python -m scdn.e2_crag_index --task 1 --n 1500     # GPU; -> data/e2_crag/
+uv run python -m semdn.e2_crag_index --task 1 --n 1500     # GPU; -> data/e2_crag/
 bash scripts/e2_locality/crag_replication.sh              # server + traces + locality/cache analysis
 ```
 
@@ -176,7 +176,7 @@ F1. Every arm starts from e5's top 100 passages and hands the reader five passag
 | `page_llm@N` | top 30 pages by mean e5 vector, each whole page (up to the reranker's 32K context) reranked by Qwen3-Reranker-4B; best 5 candidates (by the reranker) on the top N pages |
 
 The reranker and its scoring code are the same as in the CRAG sweep below
-(`scdn.e4_isobudget.make_llm_scorer`). Paired tests: sign-flip permutation on per-question F1,
+(`semdn.e4_isobudget.make_llm_scorer`). Paired tests: sign-flip permutation on per-question F1,
 Holm-corrected over the five datasets.
 
 Average F1 over the five datasets:
@@ -206,7 +206,7 @@ in `data/e1/wiki_html_sizes.jsonl`.
 | reranker, reads 30 pages     | 9.52 MB                      | 2,989×                         |
 
 ```sh
-uv run python -m scdn.e1_matrix_bytes --per-ds 50     # -> outputs/e1_matrix_bytes.json
+uv run python -m semdn.e1_matrix_bytes --per-ds 50     # -> outputs/e1_matrix_bytes.json
 ```
 
 Outputs: `data/e1/matrix_llm_<dataset>.jsonl` (chosen passages), `matrix_llm_{,qwen3_32b_}quality.jsonl`
@@ -225,7 +225,7 @@ share of SemDN's top-5 passages the client cannot reach:
 | lead passage          | 66% | 42% | 36% | 33% | 29% |
 
 ```sh
-uv run python -m scdn.e1_recall --n 300                   # CPU; -> outputs/e1_recall_stats.json
+uv run python -m semdn.e1_recall --n 300                   # CPU; -> outputs/e1_recall_stats.json
 ```
 
 ### CRAG iso-budget sweep (§6.3, paragraph 3, Fig. 3c)
@@ -244,7 +244,7 @@ delivery unit and the ranker differ. Reader Qwen3-32B, judge Llama-3.1-70B (CRAG
 
 ```sh
 # 1. extract + chunk the 600 questions' pages once (CPU, a few hours)
-uv run python -m scdn.e4_crag_t3 --stage cache --corpus t3b --chunker coherent --n 600
+uv run python -m semdn.e4_crag_t3 --stage cache --corpus t3b --chunker coherent --n 600
 # 2. budgets 128-6144: chunk, chunk_ce, page_rel, page_seq, snippet_full (build, read, judge)
 bash scripts/e4_quality/iso_n600_run.sh
 # 3. budgets 8192 and 12288 for those arms, and the LLM-reranker arms at all budgets.
@@ -252,7 +252,7 @@ bash scripts/e4_quality/iso_n600_run.sh
 bash scripts/e4_quality/iso_xl_run.sh
 SKIP_BUILD=1 JUDGE=1 bash scripts/e4_quality/iso_xl_run.sh
 # 4. paired tests (McNemar, Holm over budgets)
-uv run python -m scdn.e4_iso_stats --tag t3b_,t3b_xl_
+uv run python -m semdn.e4_iso_stats --tag t3b_,t3b_xl_
 ```
 
 ## Extended results (not shown in the paper)
@@ -262,7 +262,7 @@ truthfulness (+1 right, 0 "I don't know", −1 wrong) and hallucination rate are
 Llama-3.1-70B judge.
 
 **Granularity on CRAG Task 3** (600 questions, up to 50 pages each, Qwen3-32B reader;
-`scdn.e4_crag_t3`, `scdn.e4_baselines`; `e4_n600.sh`, `e4_n600_qwen3rr.sh`, `e4_t3b_hybrid.sh`,
+`semdn.e4_crag_t3`, `semdn.e4_baselines`; `e4_n600.sh`, `e4_n600_qwen3rr.sh`, `e4_t3b_hybrid.sh`,
 `e4_baselines_run.sh`, `e4_baselines_recover.sh`, `e4_nochunk_extra.sh`, `e4_summary_v2.sh`,
 `e4_t3_run.sh`, `e4_t3_readjudge.sh`; `e4_t3_fetch.sh` downloads Task 3). Each arm at its best page depth:
 
@@ -281,27 +281,27 @@ Retrieval beats no retrieval (+0.13 accuracy, significant). Without a fixed budg
 delivery forms land within 0.50–0.54; truthfulness peaks near five pages, then hallucination rises.
 
 **Page depth and pool noise on the live web** (147 CRAG questions over live search results,
-Qwen2.5-7B reader; `scdn.e4_granularity`, `e4_live_n300.sh`, `e4_fetch_resilient.sh`,
+Qwen2.5-7B reader; `semdn.e4_granularity`, `e4_live_n300.sh`, `e4_fetch_resilient.sh`,
 `e4_fetch_render.sh`, `e4_gpu_stages.sh`). Reading only the top page is worst (accuracy 0.38); a moderate pool of 3
 to 10 pages is best (0.46–0.50). With fixed 256-token chunks, the full pool of about 22 pages
 does worse than 10 pages because similar-looking but wrong text raises hallucination.
 Structure-aware chunking without a title prefix removes that penalty (`e4_struct_pipeline.sh`,
 `e4_structnt_ablation.sh`, `e4_structnt_extra.sh`); adding the page title to every chunk hurts.
 
-**Snippets vs chunks on the live web** (287 questions; `scdn.e4_live_baselines`,
+**Snippets vs chunks on the live web** (287 questions; `semdn.e4_live_baselines`,
 `e4_live_n300_baselines.sh`, `e4_live_hybrid.sh`, `e4_coherent_live.sh`). At the same number of
 blocks, five search snippets tie chunks and the chunk + snippet mix, using about a third of the
 tokens.
 
 **Cloud fetch through the full pipeline** (`scripts/fetchability/cf_eval_run.sh`,
-`scdn.e4_cf_eval`, `scdn.e4_cf_stats`, `e4_cf_compare.sh`, `e4_cf_aug_fix.sh`,
+`semdn.e4_cf_eval`, `semdn.e4_cf_stats`, `e4_cf_compare.sh`, `e4_cf_aug_fix.sh`,
 `scripts/fetchability/cf_recover.py`). Compared with a
 plain HTTP GET plus trafilatura, Cloudflare's renderer doubles the usable pages
 per question (4.5 to 9.0, top 12) and recovers 70% of blocked pages. Answer quality stays tied:
 chunks still match snippets at the same context size.
 
 **Controlled page vs chunk retrieval on CRAG Task 1** (300 questions, 5 provided pages each;
-`scdn.e4_crag`, `e4_gen_norag_crag.sh`, `e4_unified_batch.sh`). Accuracy: chunk retrieval 0.470,
+`semdn.e4_crag`, `e4_gen_norag_crag.sh`, `e4_unified_batch.sh`). Accuracy: chunk retrieval 0.470,
 top 3 pages 0.447, top page 0.403 (Qwen2.5-7B). Chunks beat the top page significantly
 (+0.067); chunks vs three pages is within noise.
 
@@ -313,11 +313,11 @@ top 3 pages 0.447, top page 0.403 (Qwen2.5-7B). Chunks beat the top page signifi
 | Qwen3-Embedding-0.6B                                                             | better at one page, same as e5 by five pages        |
 | bge-reranker-v2-m3                                                               | more accurate, but more hallucination in deep pools |
 | BM25                                                                             | ties e5                                             |
-| LLM scores each chunk's usefulness (`scdn.e4_utility_rank`, `e4_utility.sh`) | same accuracy, +0.067 hallucination (Qwen3-32B)     |
+| LLM scores each chunk's usefulness (`semdn.e4_utility_rank`, `e4_utility.sh`) | same accuracy, +0.067 hallucination (Qwen3-32B)     |
 | coherent chunker                                                                 | better on CRAG Task 3 pages, not on live-web pages  |
 
-**Where answers sit** (CRAG Task 3, 300 questions; `scdn.e4_answer_locality`,
-`scdn.e4_locality_strong`). 60% of questions have an answer anywhere in their 50 pages. The
+**Where answers sit** (CRAG Task 3, 300 questions; `semdn.e4_answer_locality`,
+`semdn.e4_locality_strong`). 60% of questions have an answer anywhere in their 50 pages. The
 answer is in the top page for 30% and the top five pages for 45%. Among answerable questions, e5
 places an answer chunk among the three shown for 54% (BM25 49%).
 `scripts/e4_quality/answer_survival.py` checks where gold answers are lost between raw HTML,
@@ -332,10 +332,10 @@ Qwen3-32B beats Qwen2.5-7B on truthfulness by +0.157 (significant).
 **Iso-budget pilot** (300 questions; `iso_eval_run.sh`, `iso_snippet_full.sh`,
 `iso_n600_resume.sh`): the first round of the paper's sweep.
 
-**wiki-18 page vs chunk with a stronger page encoder** (`scdn.e1_quality`). Ranking whole pages
+**wiki-18 page vs chunk with a stronger page encoder** (`semdn.e1_quality`). Ranking whole pages
 with Qwen3-Embedding-0.6B (32K context) instead of mean e5 vectors shrinks the delivery gap at
 ten pages from 26% to 20%. Chunks still beat pages on all five datasets under both encoders.
-`scdn.e1_recall_answer` adds answer F1 for the
+`semdn.e1_recall_answer` adds answer F1 for the
 delivery gap.
 
 **Cost at equal quality** (`scripts/e3_amortization/cost_to_equal_quality.py`). With the same
@@ -355,7 +355,7 @@ The agent's next query usually narrows the current one (89% of hits come one tur
 its deeper results preview the next answer. HNSW and exact search agree on 88% of top-3 results,
 but cache hit ratios stay within one point; exact search gains 2–4 exact-match points.
 
-**Live semantic cache prototype** (`scdn.live_scdn_server`). A build-as-you-go cache over the
+**Live semantic cache prototype** (`semdn.live_semdn_server`). A build-as-you-go cache over the
 live web (search, fetch, chunk, embed, incremental index) behind Search-R1's `/retrieve` API.
 Over shallow keyword search results, similarity hits are mostly hollow: cover-EM 0.03 when
 served from cache vs 0.20 with a fresh fetch (threshold 0.80).

@@ -8,7 +8,7 @@ import json
 import re
 import statistics as st
 
-from scdn import paths
+from semdn import paths
 
 E4 = paths.DATA_ROOT / "e4"
 _NAV = re.compile(r"(cookie|subscribe|sign ?in|sign ?up|newsletter|advertis|privacy policy|"

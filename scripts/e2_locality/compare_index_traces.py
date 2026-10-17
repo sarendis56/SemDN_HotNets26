@@ -6,10 +6,10 @@ retrieval index differs) on locality and cacheability.
 
 import numpy as np
 
-from scdn import paths
-from scdn.analyze import dedup_repeat_queries, duplicate_query_rate
-from scdn.cachesim import simulate
-from scdn.stream import load_traces, synthesize_stream, within_task_overlap
+from semdn import paths
+from semdn.analyze import dedup_repeat_queries, duplicate_query_rate
+from semdn.cachesim import simulate
+from semdn.stream import load_traces, synthesize_stream, within_task_overlap
 
 sizes = np.load(paths.DATA_ROOT / "corpus" / "wiki-18-meta" / "sizes.npy")
 page_ids = np.load(paths.DATA_ROOT / "corpus" / "wiki-18-meta" / "page_ids.npy")

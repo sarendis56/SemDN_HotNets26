@@ -11,12 +11,12 @@ export NCCL_IB_DISABLE=1
 export VLLM_WORKER_MULTIPROC_METHOD=spawn
 MODEL=meta-llama/Llama-3.1-70B-Instruct
 echo "=== judge e5 (Llama-70B TP=2) ==="
-on_gpus 2 78000 uv run python -m scdn.e4_judge \
+on_gpus 2 78000 uv run python -m semdn.e4_judge \
   --preds data/e4/granularity_quality.preds.jsonl --tag e5-llama70b --model "$MODEL" \
   --tensor-parallel-size 2 --gpu-memory-utilization 0.92 --max-model-len 2048 \
   --out data/e4/judge_e5_llama70b.jsonl
 echo "=== judge qwen3 (Llama-70B TP=2) ==="
-on_gpus 2 78000 uv run python -m scdn.e4_judge \
+on_gpus 2 78000 uv run python -m semdn.e4_judge \
   --preds data/e4/granularity_quality_qwen3.preds.jsonl --tag qwen3-llama70b --model "$MODEL" \
   --tensor-parallel-size 2 --gpu-memory-utilization 0.92 --max-model-len 2048 \
   --out data/e4/judge_qwen3_llama70b.jsonl

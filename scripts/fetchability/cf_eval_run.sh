@@ -13,7 +13,7 @@ TOPK=${TOPK:-12}
 
 if [ "${SKIP_BUILD:-0}" != "1" ]; then
   echo "=== [1/3] build pools (e5, GPU0) ==="
-  on_gpus 1 uv run python -m scdn.e4_cf_eval build --n "$N" --topk "$TOPK"
+  on_gpus 1 uv run python -m semdn.e4_cf_eval build --n "$N" --topk "$TOPK"
 else
   echo "=== [1/3] build SKIPPED (SKIP_BUILD=1) ==="
 fi
@@ -34,11 +34,11 @@ for tag in "${!POOLS[@]}"; do
   pool="$G/${POOLS[$tag]}.jsonl"
   out="$G/ans_cf_${tag}_q3.jsonl"
   echo "--- reader: $tag ($pool) ---"
-  on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" --pool "$pool" --out "$out"
+  on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" --pool "$pool" --out "$out"
   PREDS="$PREDS,${out%.jsonl}.preds.jsonl"; TAGS="$TAGS,cf_${tag}"; OUTS="$OUTS,$G/judge_cf_${tag}_q3.jsonl"
 done
 # no-RAG closed-book (parametric only), once
-on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" \
+on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" \
   --pool "$G/pool_cf_cf_structnt.jsonl" --out "$G/ans_cf_norag_q3.jsonl" --closed-book
 PREDS="$PREDS,$G/ans_cf_norag_q3.preds.jsonl"; TAGS="$TAGS,cf_norag"; OUTS="$OUTS,$G/judge_cf_norag_q3.jsonl"
 

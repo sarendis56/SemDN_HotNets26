@@ -11,11 +11,11 @@ M32=Qwen/Qwen3-32B
 G=data/e4
 
 echo "=== reader Qwen2.5-7B: BM25 + provided ==="
-on_gpus 1 uv run python -m scdn.e4_answer --pool "$G/pool_crag_t3_bm25.jsonl"     --out "$G/granularity_quality_crag_t3_bm25.jsonl"
-on_gpus 1 uv run python -m scdn.e4_answer --pool "$G/pool_crag_t3_provided.jsonl" --out "$G/granularity_quality_crag_t3_provided.jsonl"
+on_gpus 1 uv run python -m semdn.e4_answer --pool "$G/pool_crag_t3_bm25.jsonl"     --out "$G/granularity_quality_crag_t3_bm25.jsonl"
+on_gpus 1 uv run python -m semdn.e4_answer --pool "$G/pool_crag_t3_provided.jsonl" --out "$G/granularity_quality_crag_t3_provided.jsonl"
 echo "=== reader Qwen3-32B: BM25 + provided ==="
-on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" --pool "$G/pool_crag_t3_bm25.jsonl"     --out "$G/granularity_quality_crag_t3_bm25_q3.jsonl"
-on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" --pool "$G/pool_crag_t3_provided.jsonl" --out "$G/granularity_quality_crag_t3_provided_q3.jsonl"
+on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" --pool "$G/pool_crag_t3_bm25.jsonl"     --out "$G/granularity_quality_crag_t3_bm25_q3.jsonl"
+on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" --pool "$G/pool_crag_t3_provided.jsonl" --out "$G/granularity_quality_crag_t3_provided_q3.jsonl"
 
 echo "=== judge all 4 with Llama-3.1-70B (TP=2) ==="
 bash scripts/lib/judge_robust.sh \

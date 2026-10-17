@@ -18,9 +18,9 @@ import json
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from scdn import paths
-from scdn.cf_markdown import clean_markdown, url_to_markdown
-from scdn.e4_granularity import load_crag
+from semdn import paths
+from semdn.cf_markdown import clean_markdown, url_to_markdown
+from semdn.e4_granularity import load_crag
 
 E4 = paths.DATA_ROOT / "e4"
 SERP = E4 / "serp_deep.jsonl"

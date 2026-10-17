@@ -16,7 +16,7 @@ ns=$(find "$M" -name "*.safetensors" | wc -l)
 echo "download exited: $ns safetensors"
 if [ "$ns" -lt 17 ]; then echo "INCOMPLETE ($ns/17) — aborting reader upgrade"; exit 1; fi
 
-gen() { on_gpus 1 uv run python -m scdn.e4_answer --model "$MODEL" "$@"; }
+gen() { on_gpus 1 uv run python -m semdn.e4_answer --model "$MODEL" "$@"; }
 echo "=== [q3] reader: fixed/e5 pool (page@1..10, chunk@all) ==="
 gen --pool data/e4/pool.jsonl          --out data/e4/granularity_quality_q3.jsonl
 echo "=== [q3] reader: structnt pool ==="

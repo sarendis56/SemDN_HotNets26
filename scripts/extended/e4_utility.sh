@@ -9,14 +9,14 @@ M32=Qwen/Qwen3-32B
 G=data/e4
 
 echo "=== stage candidates: e5 top-20 over coherent chunks ==="
-on_gpus 1 uv run python -m scdn.e4_utility_rank --stage candidates --chunker coherent
+on_gpus 1 uv run python -m semdn.e4_utility_rank --stage candidates --chunker coherent
 echo "=== stage rank: LLM utility scoring + rerank ==="
-on_gpus 1 uv run python -m scdn.e4_utility_rank --stage rank
+on_gpus 1 uv run python -m semdn.e4_utility_rank --stage rank
 P=$G/pool_crag_t3_utility.jsonl
 
 echo "=== readers (e5 vs util conds) ==="
-on_gpus 1 uv run python -m scdn.e4_answer --pool "$P" --out $G/granularity_quality_crag_t3_utility.jsonl
-on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" --pool "$P" --out $G/granularity_quality_crag_t3_utility_q3.jsonl
+on_gpus 1 uv run python -m semdn.e4_answer --pool "$P" --out $G/granularity_quality_crag_t3_utility.jsonl
+on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" --pool "$P" --out $G/granularity_quality_crag_t3_utility_q3.jsonl
 
 echo "=== judge ==="
 bash scripts/lib/judge_robust.sh \

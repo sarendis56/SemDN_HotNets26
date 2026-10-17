@@ -11,7 +11,7 @@ N=${N:-300}
 
 if [ "${SKIP_BUILD:-0}" != "1" ]; then
   echo "=== [1/3] build iso-budget pools (e5, GPU0) ==="
-  on_gpus 1 uv run python -m scdn.e4_isobudget build --n "$N"
+  on_gpus 1 uv run python -m semdn.e4_isobudget build --n "$N"
 fi
 
 echo "=== [2/3] reader Qwen3-32B (GPU0) ==="
@@ -20,7 +20,7 @@ for arm in chunk page_rel page_seq snippet; do
   pool="$G/pool_iso_${arm}.jsonl"
   out="$G/ans_iso_${arm}_q3.jsonl"
   echo "--- reader: $arm ---"
-  on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" --pool "$pool" --out "$out"
+  on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" --pool "$pool" --out "$out"
   PREDS="$PREDS,${out%.jsonl}.preds.jsonl"; TAGS="$TAGS,iso_${arm}"; OUTS="$OUTS,$G/judge_iso_${arm}_q3.jsonl"
 done
 

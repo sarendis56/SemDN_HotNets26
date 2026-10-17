@@ -10,13 +10,13 @@ M32=Qwen/Qwen3-32B
 G=data/e4
 
 echo "=== build orig vs aug pools (e5 rank, coherent chunks) ==="
-on_gpus 1 uv run python -m scdn.e4_cf_compare
+on_gpus 1 uv run python -m semdn.e4_cf_compare
 
 echo "=== readers (7B + 32B) on both arms ==="
 for arm in orig aug; do
   P=$G/pool_live_cf_${arm}.jsonl
-  on_gpus 1 uv run python -m scdn.e4_answer            --pool "$P" --out $G/gq_live_cf_${arm}.jsonl
-  on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" --pool "$P" --out $G/gq_live_cf_${arm}_q3.jsonl
+  on_gpus 1 uv run python -m semdn.e4_answer            --pool "$P" --out $G/gq_live_cf_${arm}.jsonl
+  on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" --pool "$P" --out $G/gq_live_cf_${arm}_q3.jsonl
 done
 
 echo "=== judge all 4 (Llama-70B) ==="

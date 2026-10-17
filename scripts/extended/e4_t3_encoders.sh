@@ -8,16 +8,16 @@ cd "$(dirname "$0")/../.."
 source scripts/lib/gpus.sh   # on_gpus: pick free GPUs at launch (shared machine)
 M32=Qwen/Qwen3-32B
 echo "=== cache: extract+chunk ≤50 pages/q once (CPU, ~1.5h, resumable) ==="
-uv run python -m scdn.e4_crag_t3 --stage cache --n 300
+uv run python -m semdn.e4_crag_t3 --stage cache --n 300
 echo "=== rank: Qwen3-embedding ==="
-on_gpus 1 uv run python -m scdn.e4_crag_t3 --stage rank --encoder qwen3 --device cuda
+on_gpus 1 uv run python -m semdn.e4_crag_t3 --stage rank --encoder qwen3 --device cuda
 echo "=== rank: cross-encoder (bge-reranker) ==="
-on_gpus 1 uv run python -m scdn.e4_crag_t3 --stage rank --encoder ce --device cuda
+on_gpus 1 uv run python -m semdn.e4_crag_t3 --stage rank --encoder ce --device cuda
 echo "=== reader Qwen3-32B: Qwen3-emb depth sweep ==="
-on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" \
+on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" \
   --pool data/e4/pool_crag_t3_qwen3.jsonl --out data/e4/granularity_quality_crag_t3_qwen3_q3.jsonl
 echo "=== reader Qwen3-32B: cross-encoder depth sweep ==="
-on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" \
+on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" \
   --pool data/e4/pool_crag_t3_ce.jsonl --out data/e4/granularity_quality_crag_t3_ce_q3.jsonl
 echo "=== judge both (Llama-3.1-70B TP=2) ==="
 bash scripts/lib/judge_robust.sh \

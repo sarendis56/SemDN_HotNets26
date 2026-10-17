@@ -30,12 +30,12 @@ on_gpus() {
   CUDA_DEVICE_ORDER=PCI_BUS_ID CUDA_VISIBLE_DEVICES=$picked "$@"
 }
 
-# Kill our own processes started with SCDN_RUN_TAG=<tag> (children inherit it). Use this,
+# Kill our own processes started with SEMDN_RUN_TAG=<tag> (children inherit it). Use this,
 # never pkill/pgrep-by-name: other jobs on the shared box may run the same program.
 kill_tagged() {
   local p
   for p in $(pgrep -u "$(id -u)" .); do
-    tr '\0' '\n' 2>/dev/null < "/proc/$p/environ" | grep -qx "SCDN_RUN_TAG=$1" && kill -9 "$p" 2>/dev/null
+    tr '\0' '\n' 2>/dev/null < "/proc/$p/environ" | grep -qx "SEMDN_RUN_TAG=$1" && kill -9 "$p" 2>/dev/null
   done
   return 0
 }

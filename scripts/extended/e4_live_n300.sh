@@ -11,7 +11,7 @@ G=data/e4
 N=300
 
 echo "########## PHASE 1: SERP (DONE — 287q/842cr already spent; cap=1 prevents further spend) ##########"
-uv run python -m scdn.e4_granularity --stage serp --n $N --depth 50 --credit-cap 1
+uv run python -m semdn.e4_granularity --stage serp --n $N --depth 50 --credit-cap 1
 uv run python -c "
 import json
 r=[json.loads(l) for l in open('$G/serp_deep.jsonl')]
@@ -21,22 +21,22 @@ echo "########## PHASE 2: RENDER page fetch (headless Chromium + generous timeou
 bash scripts/extended/e4_fetch_render.sh
 
 echo "########## PHASE 3: ranking builds (GPU) ##########"
-on_gpus 1 uv run python -m scdn.e4_granularity --stage select --encoder e5      --chunker structnt --n $N
-on_gpus 1 uv run python -m scdn.e4_granularity --stage select --encoder e5      --chunker structnt --hybrid --n $N
-on_gpus 1 uv run python -m scdn.e4_granularity --stage rerank                   --chunker structnt --n $N
-on_gpus 1 uv run python -m scdn.e4_granularity --stage select --encoder qwen3   --chunker structnt --n $N
-on_gpus 1 uv run python -m scdn.e4_granularity --stage select --encoder qwen3rr --chunker coherent  --n $N
-uv run python -m scdn.e4_live_baselines --mode snippet
-uv run python -m scdn.e4_live_baselines --mode fullpage
+on_gpus 1 uv run python -m semdn.e4_granularity --stage select --encoder e5      --chunker structnt --n $N
+on_gpus 1 uv run python -m semdn.e4_granularity --stage select --encoder e5      --chunker structnt --hybrid --n $N
+on_gpus 1 uv run python -m semdn.e4_granularity --stage rerank                   --chunker structnt --n $N
+on_gpus 1 uv run python -m semdn.e4_granularity --stage select --encoder qwen3   --chunker structnt --n $N
+on_gpus 1 uv run python -m semdn.e4_granularity --stage select --encoder qwen3rr --chunker coherent  --n $N
+uv run python -m semdn.e4_live_baselines --mode snippet
+uv run python -m semdn.e4_live_baselines --mode fullpage
 
 echo "########## PHASE 4: readers (Qwen3-32B) ##########"
-on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" --pool $G/pool_structnt.jsonl         --out $G/granularity_quality_structnt_q3.jsonl
-on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" --pool $G/pool_structnt_hybrid.jsonl  --out $G/gq_live_hybrid_structnt_e5_q3.jsonl
-on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" --pool $G/pool_ce_structnt.jsonl      --out $G/granularity_quality_ce_structnt_q3.jsonl
-on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" --pool $G/pool_qwen3_structnt.jsonl   --out $G/granularity_quality_qwen3_structnt_q3.jsonl
-on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" --pool $G/pool_qwen3rr_coherent.jsonl --out $G/gq_live_coherent_qwen3rr_q3.jsonl
-on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" --pool $G/pool_live_snippet.jsonl     --out $G/gq_pool_live_snippet_q3.jsonl
-on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" --pool $G/pool_live_fullpage.jsonl    --out $G/gq_pool_live_fullpage_q3.jsonl
+on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" --pool $G/pool_structnt.jsonl         --out $G/granularity_quality_structnt_q3.jsonl
+on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" --pool $G/pool_structnt_hybrid.jsonl  --out $G/gq_live_hybrid_structnt_e5_q3.jsonl
+on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" --pool $G/pool_ce_structnt.jsonl      --out $G/granularity_quality_ce_structnt_q3.jsonl
+on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" --pool $G/pool_qwen3_structnt.jsonl   --out $G/granularity_quality_qwen3_structnt_q3.jsonl
+on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" --pool $G/pool_qwen3rr_coherent.jsonl --out $G/gq_live_coherent_qwen3rr_q3.jsonl
+on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" --pool $G/pool_live_snippet.jsonl     --out $G/gq_pool_live_snippet_q3.jsonl
+on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" --pool $G/pool_live_fullpage.jsonl    --out $G/gq_pool_live_fullpage_q3.jsonl
 
 echo "########## PHASE 5: judge (Llama-70B), all 7 arms in one load ##########"
 bash scripts/lib/judge_robust.sh \

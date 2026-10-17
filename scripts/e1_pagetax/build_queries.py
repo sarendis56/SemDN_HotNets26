@@ -7,7 +7,7 @@ import json
 import random
 from pathlib import Path
 
-from scdn import paths
+from semdn import paths
 
 OUT = paths.DATA_ROOT / "e1" / "queries.jsonl"
 

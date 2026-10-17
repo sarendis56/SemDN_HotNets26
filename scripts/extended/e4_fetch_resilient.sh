@@ -19,7 +19,7 @@ for i in $(seq 1 60); do
   before=$(wc -l < "$CACHE" 2>/dev/null || echo 0)
   if [ "$before" -ge "$TOTAL" ]; then echo "all $TOTAL urls cached"; break; fi
   echo "--- attempt $i: $before/$TOTAL cached ---"
-  uv run python -m scdn.e4_granularity --stage fetch --fetch-conc 8 --fetch-timeout 8 \
+  uv run python -m semdn.e4_granularity --stage fetch --fetch-conc 8 --fetch-timeout 8 \
     >> data/e4/logs/e4g_fetch_loop.log 2>&1
   after=$(wc -l < "$CACHE" 2>/dev/null || echo 0)
   if [ "$after" -le "$before" ]; then

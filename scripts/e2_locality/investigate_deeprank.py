@@ -16,8 +16,8 @@ import json
 
 import numpy as np
 
-from scdn import paths
-from scdn.corpus import Corpus
+from semdn import paths
+from semdn.corpus import Corpus
 
 VARIANT = paths.TRACES / "full-t07-s0.jsonl"          # examples from one variant
 ALL = [paths.TRACES / f"full-t07-s{s}.jsonl" for s in (0, 1, 2)]  # stats from all

@@ -10,8 +10,8 @@ G=data/e4
 
 echo "=== readers: CRAG fullpage (t3,t1) + live snippet/fullpage ==="
 for P in pool_crag_t3_fullpage pool_crag_t1_fullpage pool_live_snippet pool_live_fullpage; do
-  on_gpus 1 uv run python -m scdn.e4_answer            --pool $G/$P.jsonl --out $G/gq_${P}.jsonl
-  on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" --pool $G/$P.jsonl --out $G/gq_${P}_q3.jsonl
+  on_gpus 1 uv run python -m semdn.e4_answer            --pool $G/$P.jsonl --out $G/gq_${P}.jsonl
+  on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" --pool $G/$P.jsonl --out $G/gq_${P}_q3.jsonl
 done
 
 echo "=== judge all 8 (Llama-70B) ==="

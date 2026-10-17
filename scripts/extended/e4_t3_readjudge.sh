@@ -7,13 +7,13 @@ source scripts/lib/gpus.sh   # on_gpus: pick free GPUs at launch (shared machine
 M32=Qwen/Qwen3-32B
 P=data/e4/pool_crag_t3.jsonl
 echo "=== reader Qwen2.5-7B: depth sweep ==="
-on_gpus 1 uv run python -m scdn.e4_answer --pool "$P" --out data/e4/granularity_quality_crag_t3.jsonl
+on_gpus 1 uv run python -m semdn.e4_answer --pool "$P" --out data/e4/granularity_quality_crag_t3.jsonl
 echo "=== reader Qwen2.5-7B: no-RAG ==="
-on_gpus 1 uv run python -m scdn.e4_answer --pool "$P" --out data/e4/granularity_quality_crag_t3_norag.jsonl --closed-book
+on_gpus 1 uv run python -m semdn.e4_answer --pool "$P" --out data/e4/granularity_quality_crag_t3_norag.jsonl --closed-book
 echo "=== reader Qwen3-32B: depth sweep ==="
-on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" --pool "$P" --out data/e4/granularity_quality_crag_t3_q3.jsonl
+on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" --pool "$P" --out data/e4/granularity_quality_crag_t3_q3.jsonl
 echo "=== reader Qwen3-32B: no-RAG ==="
-on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" --pool "$P" --out data/e4/granularity_quality_crag_t3_norag_q3.jsonl --closed-book
+on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" --pool "$P" --out data/e4/granularity_quality_crag_t3_norag_q3.jsonl --closed-book
 echo "=== judge all 4 with Llama-3.1-70B (TP=2) ==="
 bash scripts/lib/judge_robust.sh \
   "data/e4/granularity_quality_crag_t3.preds.jsonl,data/e4/granularity_quality_crag_t3_norag.preds.jsonl,data/e4/granularity_quality_crag_t3_q3.preds.jsonl,data/e4/granularity_quality_crag_t3_norag_q3.preds.jsonl" \

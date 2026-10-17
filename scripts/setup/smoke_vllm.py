@@ -2,8 +2,8 @@
 
 from vllm import LLM, SamplingParams
 
-from scdn import paths
-from scdn.gen_traces import PROMPT_TEMPLATE
+from semdn import paths
+from semdn.gen_traces import PROMPT_TEMPLATE
 
 QUESTION = (
     "Mike Barnett negotiated many contracts including which player that went on "

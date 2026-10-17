@@ -12,7 +12,7 @@ GPUS=(0 1 2)
 NG=${#GPUS[@]}
 
 reader() {  # $1=arm $2=gpu
-  CUDA_VISIBLE_DEVICES="$2" uv run python -m scdn.e4_answer --model "$M32" \
+  CUDA_VISIBLE_DEVICES="$2" uv run python -m semdn.e4_answer --model "$M32" \
     --pool "$G/pool_iso_${TAG}$1.jsonl" --out "$G/ans_iso_${TAG}$1_q3.jsonl" \
     > "$G/reader_${TAG}$1.log" 2>&1
 }

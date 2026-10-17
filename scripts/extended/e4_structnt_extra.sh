@@ -11,18 +11,18 @@ P_QE=data/e4/pool_qwen3_structnt.jsonl   # qwen3-emb encoder + structnt
 P_CE=data/e4/pool_ce_structnt.jsonl      # cross-encoder reranker + structnt
 
 echo "=== retrieval: qwen3-emb encoder / structnt ==="
-on_gpus 1 uv run python -m scdn.e4_granularity --stage select --encoder qwen3 --chunker structnt --n 150 --device cuda
+on_gpus 1 uv run python -m semdn.e4_granularity --stage select --encoder qwen3 --chunker structnt --n 150 --device cuda
 echo "=== retrieval: cross-encoder reranker / structnt ==="
-on_gpus 1 uv run python -m scdn.e4_granularity --stage rerank --chunker structnt --n 150 --device cuda
+on_gpus 1 uv run python -m semdn.e4_granularity --stage rerank --chunker structnt --n 150 --device cuda
 
 echo "=== reader Qwen2.5-7B: qwen3-emb/structnt ==="
-on_gpus 1 uv run python -m scdn.e4_answer --pool "$P_QE" --out data/e4/granularity_quality_qwen3_structnt.jsonl
+on_gpus 1 uv run python -m semdn.e4_answer --pool "$P_QE" --out data/e4/granularity_quality_qwen3_structnt.jsonl
 echo "=== reader Qwen2.5-7B: CE/structnt ==="
-on_gpus 1 uv run python -m scdn.e4_answer --pool "$P_CE" --out data/e4/granularity_quality_ce_structnt.jsonl
+on_gpus 1 uv run python -m semdn.e4_answer --pool "$P_CE" --out data/e4/granularity_quality_ce_structnt.jsonl
 echo "=== reader Qwen3-32B: qwen3-emb/structnt ==="
-on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" --pool "$P_QE" --out data/e4/granularity_quality_qwen3_structnt_q3.jsonl
+on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" --pool "$P_QE" --out data/e4/granularity_quality_qwen3_structnt_q3.jsonl
 echo "=== reader Qwen3-32B: CE/structnt ==="
-on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" --pool "$P_CE" --out data/e4/granularity_quality_ce_structnt_q3.jsonl
+on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" --pool "$P_CE" --out data/e4/granularity_quality_ce_structnt_q3.jsonl
 
 echo "=== judge all 4 with Llama-3.1-70B (TP=2) ==="
 bash scripts/lib/judge_robust.sh \

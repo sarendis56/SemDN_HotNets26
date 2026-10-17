@@ -24,14 +24,14 @@ build_on() { GPUS=${BUILD_GPUS:-${GPUS:-}} on_gpus "$@"; }
 if [ "${SKIP_BUILD:-0}" != "1" ]; then
   [ -z "$XL_ARMS" ] || done600 "$G/pool_iso_t3b_xl_page_seq.jsonl" || {
     echo "=== [build] XL pools: chunk/chunk_ce/page_rel/page_seq (e5+BGE) ==="
-    build_on 1 20000 uv run python -m scdn.e4_isobudget build --corpus t3b --n 600 \
+    build_on 1 20000 uv run python -m semdn.e4_isobudget build --corpus t3b --n 600 \
       --tag t3b_xl_ --budgets "$XL" || exit 1; }
   [ -z "$XL_ARMS" ] || done600 "$G/pool_iso_t3b_xl_snippet_full.jsonl" || {
     echo "=== [build] XL snippet_full pool (CPU) ==="
-    uv run python -m scdn.e4_isobudget snippet_full --n 600 --tag t3b_xl_ --budgets "$XL" || exit 1; }
+    uv run python -m semdn.e4_isobudget snippet_full --n 600 --tag t3b_xl_ --budgets "$XL" || exit 1; }
   [ -z "$LLM_ARMS" ] || done600 "$G/pool_iso_t3b_page_oracle.jsonl" || {
     echo "=== [build] LLM-reranker pools (Qwen3-Reranker-4B, ~6h) ==="
-    build_on 1 30000 uv run python -m scdn.e4_isobudget llm --corpus t3b --n 600 \
+    build_on 1 30000 uv run python -m semdn.e4_isobudget llm --corpus t3b --n 600 \
       --tag t3b_ --budgets "$ALL" || exit 1; }   # never read a partial pool
 fi
 
@@ -40,7 +40,7 @@ read_arm() {   # $1=tag $2=arm ; resumable: skips arms already answered
   local out="$G/ans_iso_${1}${2}_q3.jsonl"
   if [ ! -s "$out" ]; then
     echo "--- reader: $1$2 ---"
-    on_gpus 1 78000 uv run python -m scdn.e4_answer --model "$M32" \
+    on_gpus 1 78000 uv run python -m semdn.e4_answer --model "$M32" \
       --pool "$G/pool_iso_${1}${2}.jsonl" --out "$out" --max-model-len 16384 --gpu-mem 0.95
   fi
   PREDS="$PREDS,${out%.jsonl}.preds.jsonl"; TAGS="$TAGS,iso_${1}${2}"; OUTS="$OUTS,$G/judge_iso_${1}${2}_q3.jsonl"

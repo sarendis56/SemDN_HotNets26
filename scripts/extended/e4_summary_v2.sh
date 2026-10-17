@@ -11,14 +11,14 @@ M32=Qwen/Qwen3-32B
 G=data/e4
 
 echo "=== rebuild summary pools (Qwen3-32B faithful summarizer) ==="
-on_gpus 1 uv run python -m scdn.e4_baselines --mode summary --corpus t3 --page-ks 1,3,5,10 --summarizer "$M32"
-on_gpus 1 uv run python -m scdn.e4_baselines --mode summary --corpus t1 --page-ks 1,3,5   --summarizer "$M32"
+on_gpus 1 uv run python -m semdn.e4_baselines --mode summary --corpus t3 --page-ks 1,3,5,10 --summarizer "$M32"
+on_gpus 1 uv run python -m semdn.e4_baselines --mode summary --corpus t1 --page-ks 1,3,5   --summarizer "$M32"
 
 echo "=== summary readers (7B + 32B) ==="
 for cp in t3 t1; do
   P=$G/pool_crag_${cp}_summary.jsonl
-  on_gpus 1 uv run python -m scdn.e4_answer            --pool "$P" --out $G/gq_${cp}_summary.jsonl
-  on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" --pool "$P" --out $G/gq_${cp}_summary_q3.jsonl
+  on_gpus 1 uv run python -m semdn.e4_answer            --pool "$P" --out $G/gq_${cp}_summary.jsonl
+  on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" --pool "$P" --out $G/gq_${cp}_summary_q3.jsonl
 done
 
 echo "=== re-judge the 4 summary preds ==="

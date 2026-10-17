@@ -9,13 +9,13 @@ M32=Qwen/Qwen3-32B
 G=data/e4
 
 echo "=== e5-rank coherent chunks ==="
-on_gpus 1 uv run python -m scdn.e4_crag_t3 --stage rank --chunker coherent --encoder e5
+on_gpus 1 uv run python -m semdn.e4_crag_t3 --stage rank --chunker coherent --encoder e5
 P=$G/pool_crag_t3_coherent_e5.jsonl
 
 echo "=== reader Qwen2.5-7B ==="
-on_gpus 1 uv run python -m scdn.e4_answer --pool "$P" --out $G/granularity_quality_crag_t3_coherent.jsonl
+on_gpus 1 uv run python -m semdn.e4_answer --pool "$P" --out $G/granularity_quality_crag_t3_coherent.jsonl
 echo "=== reader Qwen3-32B ==="
-on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" --pool "$P" --out $G/granularity_quality_crag_t3_coherent_q3.jsonl
+on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" --pool "$P" --out $G/granularity_quality_crag_t3_coherent_q3.jsonl
 
 echo "=== judge (Llama-70B TP=2) ==="
 bash scripts/lib/judge_robust.sh \

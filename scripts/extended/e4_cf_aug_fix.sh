@@ -10,8 +10,8 @@ M32=Qwen/Qwen3-32B
 G=data/e4
 P=$G/pool_live_cf_aug.jsonl
 
-on_gpus 1 uv run python -m scdn.e4_answer            --pool "$P" --out $G/gq_live_cf_aug.jsonl
-on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" --pool "$P" --out $G/gq_live_cf_aug_q3.jsonl
+on_gpus 1 uv run python -m semdn.e4_answer            --pool "$P" --out $G/gq_live_cf_aug.jsonl
+on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" --pool "$P" --out $G/gq_live_cf_aug_q3.jsonl
 bash scripts/lib/judge_robust.sh \
   "$G/gq_live_cf_aug.preds.jsonl,$G/gq_live_cf_aug_q3.preds.jsonl" \
   "live-cf-aug-7b,live-cf-aug-q3" \

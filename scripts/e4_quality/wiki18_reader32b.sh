@@ -9,7 +9,7 @@ source scripts/lib/gpus.sh
 export ON_GPUS_IDLE=1
 export NCCL_P2P_DISABLE=1 NCCL_SHM_DISABLE=1 NCCL_IB_DISABLE=1 NCCL_SOCKET_IFNAME=lo NCCL_CUMEM_ENABLE=0
 # DATASETS=nq RTAG=qwen3_32b_nq_ redoes one dataset into separate files (merge them afterwards).
-RUN=(uv run python -m scdn.e1_matrix_answer --tag llm_ --model Qwen/Qwen3-32B
+RUN=(uv run python -m semdn.e1_matrix_answer --tag llm_ --model Qwen/Qwen3-32B
      --reader-tag "${RTAG:-qwen3_32b_}" --datasets "${DATASETS:-hotpotqa,2wikimultihopqa,musique,bamboogle,nq}")
 for attempt in 1 2 3 4 5; do
   while :; do

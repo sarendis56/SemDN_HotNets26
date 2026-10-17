@@ -10,7 +10,7 @@ export NCCL_P2P_DISABLE=1
 export NCCL_SHM_DISABLE=1
 export NCCL_IB_DISABLE=1
 export NCCL_DEBUG=WARN
-on_gpus 2 78000 uv run python -m scdn.e4_judge \
+on_gpus 2 78000 uv run python -m semdn.e4_judge \
   --preds data/e4/granularity_quality.preds.jsonl,data/e4/granularity_quality_qwen3.preds.jsonl \
   --tags e5-llama70b,qwen3-llama70b \
   --outs data/e4/judge_e5_llama70b.jsonl,data/e4/judge_qwen3_llama70b.jsonl \

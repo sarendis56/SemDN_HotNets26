@@ -9,7 +9,7 @@ source scripts/lib/gpus.sh   # on_gpus: pick free GPUs at launch (shared machine
 export NCCL_P2P_DISABLE=1 NCCL_SHM_DISABLE=1 NCCL_IB_DISABLE=1
 export VLLM_EXECUTE_MODEL_TIMEOUT_SECONDS=1800
 export VLLM_RPC_TIMEOUT=1800000
-on_gpus 2 78000 uv run python -m scdn.e4_judge \
+on_gpus 2 78000 uv run python -m semdn.e4_judge \
   --preds data/e4/granularity_quality_ce.preds.jsonl \
   --tags ce-llama70b --outs data/e4/judge_ce_llama70b.jsonl \
   --model meta-llama/Llama-3.1-70B-Instruct \

@@ -33,7 +33,7 @@ if want wiki18; then
   hf download PeterJinGo/wiki-18-corpus --repo-type dataset --local-dir data/corpus/wiki-18
   [ -f data/corpus/wiki-18/wiki-18.jsonl ] ||
     tar -xzf data/corpus/wiki-18/wiki-18.jsonl.gz -O > data/corpus/wiki-18/wiki-18.jsonl
-  uv run python -m scdn.corpus build          # offsets / sizes / page ids -> data/corpus/wiki-18-meta
+  uv run python -m semdn.corpus build          # offsets / sizes / page ids -> data/corpus/wiki-18-meta
 
   # e5 indexes over wiki-18, shipped as split parts; join, then drop the parts.
   for ix in "wiki-18-e5-index wiki-18-e5-flat e5_Flat.index" \

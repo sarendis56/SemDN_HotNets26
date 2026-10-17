@@ -12,9 +12,9 @@ G=data/e4
 for enc in qwen3 ce; do
   P=$G/pool_crag_t3_coherent_${enc}.jsonl
   echo "=== reader 7B: coherent/$enc ==="
-  on_gpus 1 uv run python -m scdn.e4_answer --pool "$P" --out $G/granularity_quality_crag_t3_coherent_${enc}.jsonl
+  on_gpus 1 uv run python -m semdn.e4_answer --pool "$P" --out $G/granularity_quality_crag_t3_coherent_${enc}.jsonl
   echo "=== reader 32B: coherent/$enc ==="
-  on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" --pool "$P" --out $G/granularity_quality_crag_t3_coherent_${enc}_q3.jsonl
+  on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" --pool "$P" --out $G/granularity_quality_crag_t3_coherent_${enc}_q3.jsonl
 done
 
 echo "=== judge all 4 (Llama-70B TP=2) ==="

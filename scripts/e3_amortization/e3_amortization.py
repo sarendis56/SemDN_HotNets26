@@ -1,7 +1,7 @@
 """E3 — redundant work across operators (O4, claim iv).
 
 Today each operator runs its own fetch->clean->chunk->embed pipeline, so popular
-content is processed once per operator. A shared SCDN processes each unique page
+content is processed once per operator. A shared SemDN processes each unique page
 once (fetch/clean/chunk) and embeds it once per *distinct encoder*. We quantify
 the amortization with measured inputs:
 
@@ -23,8 +23,8 @@ import time
 
 import numpy as np
 
-from scdn import paths
-from scdn.corpus import Corpus
+from semdn import paths
+from semdn.corpus import Corpus
 
 # E1 median HTML doc is ~760 KB/query over 5 pages -> ~152 KB/page (lightweight fetch)
 E1_PAGE_BYTES = 760_616 // 5
@@ -63,7 +63,7 @@ overlap = {
 print("cross-dataset overlap:", json.dumps(overlap, indent=2), flush=True)
 
 # --- (2) measured embed throughput (e5 on GPU) ---
-from scdn.retrieval_server import E5Encoder
+from semdn.retrieval_server import E5Encoder
 
 enc = E5Encoder(paths.E5_BASE_V2, device="cuda")
 sample = [corpus.contents(int(c)) for c in range(2000)]

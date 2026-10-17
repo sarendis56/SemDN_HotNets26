@@ -1,7 +1,7 @@
 """Why does trajectory deep-rank prefetch beat neighbor-of-top-1 prefetch?
 
 For each turn i with a fresh chunk X needed at turn i+1, contrast two predictors
-the SCDN could use to have prefetched X:
+the SemDN could use to have prefetched X:
   TRAJECTORY: deep ranks (4..M) of the SAME query q_i  (the "C/D" the query
               itself surfaced just below the top-3)
   NEIGHBORS : kNN / HNSW-graph neighbors of B_i = q_i's top-1 served chunk
@@ -13,8 +13,8 @@ import json
 
 import numpy as np
 
-from scdn import paths
-from scdn.corpus import Corpus
+from semdn import paths
+from semdn.corpus import Corpus
 
 corpus = Corpus()
 ann = {int(k): v for k, v in json.load(open(paths.REPO_ROOT / "outputs" / "ann_neighbors.json")).items()}

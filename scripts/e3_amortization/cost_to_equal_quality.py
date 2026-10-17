@@ -1,5 +1,5 @@
 """E1-D — cost-to-equal-quality: the baseline pays fetch+chunk+embed per query
-per client (no sharing); the SCDN delivers chunks and amortizes acquisition at
+per client (no sharing); the SemDN delivers chunks and amortizes acquisition at
 E2's measured cache hit rate. Fuses E1 (per-page bytes), E2 (hit rate), E3
 (embed throughput). Analytical, no GPU.
 """
@@ -8,12 +8,12 @@ import json
 
 import numpy as np
 
-from scdn import paths
+from semdn import paths
 
 # E1 measured (decompressed content bytes, lightweight no-JS baseline; per query, k=5)
 CLIENT_LINK_HTML = 760_616        # bytes the client pulls (5 pages of HTML)
 CLIENT_LINK_RENDER = 5_752_861    # bytes if it must full-render (transfer)
-SCDN_LINK = 7_138                 # bytes the SCDN returns (top-5 chunks)
+SEMDN_LINK = 7_138                 # bytes the SemDN returns (top-5 chunks)
 EMBED_THR = 392                   # chunks/GPU-s (E3 measured)
 
 # E2 measured cache hit rate (zipf0.8, chunk_lru) from cachesim.csv
@@ -29,9 +29,9 @@ hit_by_cap.sort()
 print("=== Communication (client link), per query ===")
 print(f"  client pulls pages : {CLIENT_LINK_HTML/1e3:.0f} KB (lightweight) / "
       f"{CLIENT_LINK_RENDER/1e6:.2f} MB (full render)")
-print(f"  SCDN returns chunks: {SCDN_LINK/1e3:.1f} KB")
-print(f"  reduction          : {CLIENT_LINK_HTML/SCDN_LINK:.0f}x (lightweight) / "
-      f"{CLIENT_LINK_RENDER/SCDN_LINK:.0f}x (render)  -- unconditional")
+print(f"  SemDN returns chunks: {SEMDN_LINK/1e3:.1f} KB")
+print(f"  reduction          : {CLIENT_LINK_HTML/SEMDN_LINK:.0f}x (lightweight) / "
+      f"{CLIENT_LINK_RENDER/SEMDN_LINK:.0f}x (render)  -- unconditional")
 
 print("\n=== Acquisition amortization vs edge cache size (from E2 hit rate) ===")
 for cap, h in hit_by_cap:
@@ -50,7 +50,7 @@ def amort(capmb):
 print("\n=== Headline ===")
 for capmb in (1.34, 13.44):
     h, a = amort(capmb)
-    print(f"  at {capmb} MB edge cache: hit={h:.3f} -> SCDN does {a:.1f}x fewer origin "
+    print(f"  at {capmb} MB edge cache: hit={h:.3f} -> SemDN does {a:.1f}x fewer origin "
           f"fetches AND (shared encoder) {a:.1f}x less embedding than per-query-per-client")
 print(f"  embedding absolute: at {EMBED_THR} chunks/GPU-s, the saved fraction is "
       f"(hit) x (chunks embedded); only shareable across a common encoder (E3).")

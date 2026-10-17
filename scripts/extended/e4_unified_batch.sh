@@ -17,18 +17,18 @@ PK=1,3,5
 echo "########## (A) TASK-1 ##########"
 echo "=== rank t1 coherent: e5 bm25 provided qwen3rr ==="
 for enc in e5 bm25 provided qwen3rr; do
-  on_gpus 1 uv run python -m scdn.e4_crag_t3 --stage rank --corpus t1 --chunker coherent --encoder "$enc" --page-ks "$PK"
+  on_gpus 1 uv run python -m semdn.e4_crag_t3 --stage rank --corpus t1 --chunker coherent --encoder "$enc" --page-ks "$PK"
 done
 
 echo "=== t1 readers (7B + 32B) ==="
 for enc in e5 bm25 provided qwen3rr; do
   P=$G/pool_crag_t1_coherent_${enc}.jsonl
-  on_gpus 1 uv run python -m scdn.e4_answer            --pool "$P" --out $G/gq_t1_coherent_${enc}.jsonl
-  on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" --pool "$P" --out $G/gq_t1_coherent_${enc}_q3.jsonl
+  on_gpus 1 uv run python -m semdn.e4_answer            --pool "$P" --out $G/gq_t1_coherent_${enc}.jsonl
+  on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" --pool "$P" --out $G/gq_t1_coherent_${enc}_q3.jsonl
 done
 
 echo "=== t1 structural decomposition ==="
-on_gpus 1 uv run python -m scdn.e4_locality_strong --corpus t1 --chunker coherent \
+on_gpus 1 uv run python -m semdn.e4_locality_strong --corpus t1 --chunker coherent \
   --rankers e5,bm25,qwen3,ce,qwen3rr --out $G/locality_strong_t1.json
 
 echo "=== t1 judge (8 preds, Llama-70B) ==="
@@ -41,13 +41,13 @@ bash scripts/lib/judge_robust.sh "${P#,}" "${T#,}" "${O#,}"
 echo "########## (B) LIVE WEB ##########"
 echo "=== live select: coherent x {bm25, provided, qwen3rr} ==="
 for enc in bm25 provided qwen3rr; do
-  on_gpus 1 uv run python -m scdn.e4_granularity --stage select --encoder "$enc" --chunker coherent
+  on_gpus 1 uv run python -m semdn.e4_granularity --stage select --encoder "$enc" --chunker coherent
 done
 
 echo "=== live readers (32B) ==="
 for enc in bm25 provided qwen3rr; do
   P=$G/pool_${enc}_coherent.jsonl
-  on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" --pool "$P" --out $G/gq_live_coherent_${enc}_q3.jsonl
+  on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" --pool "$P" --out $G/gq_live_coherent_${enc}_q3.jsonl
 done
 
 echo "=== live judge (3 preds, Llama-70B) ==="

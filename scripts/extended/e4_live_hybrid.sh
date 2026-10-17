@@ -14,7 +14,7 @@ echo "########## waiting for qwen3rr n=600 to free the GPU ##########"
 until grep -q "QWEN3RR N600 DONE" $G/n600_qwen3rr.log 2>/dev/null; do sleep 60; done
 
 echo "=== build hybrid pool (e5 + structnt + SERP snippets) ==="
-on_gpus 1 uv run python -m scdn.e4_granularity --stage select --encoder e5 --chunker structnt --hybrid
+on_gpus 1 uv run python -m semdn.e4_granularity --stage select --encoder e5 --chunker structnt --hybrid
 
 echo "=== how often did chunk@all pick a snippet (src_rank 0) vs a deep chunk? ==="
 uv run python -c "
@@ -26,7 +26,7 @@ print(f'  {len(recs)} questions; chunk@all picks: {snip}/{tot} are SERP snippets
 "
 
 echo "=== reader (Qwen3-32B) ==="
-on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" \
+on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" \
   --pool $G/pool_structnt_hybrid.jsonl --out $G/gq_live_hybrid_structnt_e5_q3.jsonl
 
 echo "=== judge (Llama-70B) ==="

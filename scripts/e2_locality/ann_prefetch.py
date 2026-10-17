@@ -11,10 +11,10 @@ import json
 import faiss
 import numpy as np
 
-from scdn import paths
-from scdn.analyze import dedup_repeat_queries
-from scdn.cachesim import simulate
-from scdn.stream import load_trace_variants, load_traces, synthesize_stream
+from semdn import paths
+from semdn.analyze import dedup_repeat_queries
+from semdn.cachesim import simulate
+from semdn.stream import load_trace_variants, load_traces, synthesize_stream
 
 TRACE_FILES = [paths.TRACES / f"full-t07-s{s}.jsonl" for s in (0, 1, 2)]
 M_TABLE = 16

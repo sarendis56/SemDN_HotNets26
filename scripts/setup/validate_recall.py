@@ -15,8 +15,8 @@ from pathlib import Path
 import faiss
 import numpy as np
 
-from scdn import paths
-from scdn.retrieval_server import E5Encoder
+from semdn import paths
+from semdn.retrieval_server import E5Encoder
 
 
 def main() -> None:

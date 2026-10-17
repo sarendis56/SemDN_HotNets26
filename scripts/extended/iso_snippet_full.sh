@@ -9,10 +9,10 @@ G=data/e4
 M32=Qwen/Qwen3-32B
 
 echo "=== [1/3] build snippet_full pool (stream CRAG t3 source ~50GB) ==="
-uv run python -m scdn.e4_isobudget snippet_full --n 300
+uv run python -m semdn.e4_isobudget snippet_full --n 300
 
 echo "=== [2/3] reader Qwen3-32B ==="
-on_gpus 1 uv run python -m scdn.e4_answer --model "$M32" \
+on_gpus 1 uv run python -m semdn.e4_answer --model "$M32" \
   --pool "$G/pool_iso_snippet_full.jsonl" --out "$G/ans_iso_snippet_full_q3.jsonl"
 
 echo "=== [3/3] judge Llama-3.1-70B (TP=2) ==="
