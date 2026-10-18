@@ -97,7 +97,7 @@ statistics go to `outputs/`.
 | §6.2, Fig. 3b and text | chunk vs URL-object cache: 73.8% hits at 1.34 MB, 13–41× fewer origin bytes at equal size                                                                                                                                  | same                                                            | `outputs/cachesim.csv`                                                  |
 | §6.2 text              | replication on CRAG pages: 63–79% within-task reuse, 25–70× fewer origin bytes                                                                                                                                            | [CRAG replication](#crag-replication-62-text)                    | `data/e2_crag/`, `outputs/e2_crag_{locality_stats.json,cachesim.csv}` |
 | §6.2 text              | top-10 domains are 34% of results; about 6× less repeated work at 50 tenants; 392 chunks/s per A100 with e5                                                                                                                 | [Amortization](#cross-tenant-amortization-62-text)               | `outputs/e3_stats.json`                                                 |
-| §6.3 ¶1               | wiki-18, five QA sets: chunks match or beat a page-first client at ten pages under the same ranker (e5, or e5 then Qwen3-Reranker-4B) and two readers; the client moves about 1,200× (e5) and 3,000× (reranker) more bytes | [wiki-18 matrix](#wiki-18-granularity-matrix-63-paragraph-1)     | `data/e1/matrix_llm_*`, `outputs/e1_matrix_bytes.json`                |
+| §6.3 ¶1               | wiki-18, five QA sets: chunks match or beat a page-first client at ten pages in judged accuracy (Llama-3.1-70B) under the same ranker (e5, or e5 then Qwen3-Reranker-4B) and two readers; the client moves about 1,200× (e5) and 3,000× (reranker) more bytes | [wiki-18 matrix](#wiki-18-granularity-matrix-63-paragraph-1)     | `data/e1/matrix_llm_*`, `outputs/e1_matrix_bytes.json`                |
 | §6.3 ¶2               | HotpotQA (300): 16–29% of the global top-5 chunks sit on pages outside a whole-page ranker's top 20                                                                                                                         | [Delivery gap](#delivery-gap-63-paragraph-2)                     | `outputs/e1_recall_stats.json`                                          |
 | §6.3 ¶3, Fig. 3c      | CRAG Task 3, n=600, equal token budgets 128–12,288: chunks vs pages vs snippets, e5 and LLM-reranked                                                                                                                        | [Iso-budget sweep](#crag-iso-budget-sweep-63-paragraph-3-fig-3c) | `data/e4/judge_iso_*`, `data/e4/significance_iso_*.json`              |
 
@@ -165,8 +165,8 @@ uv run python scripts/e3_amortization/e3_amortization.py           # GPU; -> out
 
 ### wiki-18 granularity matrix (§6.3, paragraph 1)
 
-Five QA sets (HotpotQA, 2Wiki, MuSiQue, NQ: 500 questions each; Bamboogle: all 125), wiki-18,
-F1. Every arm starts from e5's top 100 passages and hands the reader five passages:
+Five QA sets (HotpotQA, 2Wiki, MuSiQue, NQ: 500 questions each; Bamboogle: all 125), wiki-18.
+Every arm starts from e5's top 100 passages and hands the reader five passages:
 
 | Arm            | How the five passages are chosen                                                                                                                                         |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -176,10 +176,18 @@ F1. Every arm starts from e5's top 100 passages and hands the reader five passag
 | `page_llm@N` | top 30 pages by mean e5 vector, each whole page (up to the reranker's 32K context) reranked by Qwen3-Reranker-4B; best 5 candidates (by the reranker) on the top N pages |
 
 The reranker and its scoring code are the same as in the CRAG sweep below
-(`semdn.e4_isobudget.make_llm_scorer`). Paired tests: sign-flip permutation on per-question F1,
-Holm-corrected over the five datasets.
+(`semdn.e4_isobudget.make_llm_scorer`). Answers are graded by Llama-3.1-70B with CRAG's metric (correct = perfect or acceptable); paired
+McNemar tests, Holm-corrected over the five datasets. Token F1 is also reported (sign-flip
+permutation tests).
 
-Average F1 over the five datasets:
+Average judged accuracy over the five datasets:
+
+| Reader | `chunk_e5` | `page_e5@1` | `@3` | `@5` | `@10` | `chunk_llm` | `page_llm@1` | `@3` | `@5` | `@10` |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Qwen2.5-7B | 0.456 | 0.392 | 0.424 | 0.435 | 0.427 | 0.500 | 0.456 | 0.500 | 0.496 | 0.493 |
+| Qwen3-32B (thinking off) | 0.497 | 0.413 | 0.468 | 0.478 | 0.486 | 0.562 | 0.497 | 0.550 | 0.554 | 0.547 |
+
+Average F1:
 
 | Reader                   | `chunk_e5` | `page_e5@1` | `@3` | `@5` | `@10` | `chunk_llm` | `page_llm@1` | `@3` | `@5` | `@10` |
 | ------------------------ | ------------ | ------------- | ------ | ------ | ------- | ------------- | -------------- | ------ | ------ | ------- |
@@ -190,6 +198,7 @@ Average F1 over the five datasets:
 bash scripts/e4_quality/wiki18_matrix.sh    # 5 retrieval processes in parallel, then the Qwen2.5-7B reader + tests
 DATASETS="hotpotqa nq" bash scripts/e4_quality/wiki18_matrix.sh   # fewer at once if RAM is tight
 bash scripts/e4_quality/wiki18_reader32b.sh # Qwen3-32B reader on the same passages; waits for idle GPUs
+bash scripts/e4_quality/wiki18_judge.sh     # Llama-3.1-70B judge for both readers + McNemar tests; two 80 GB GPUs
 ```
 
 Each retrieval process holds its own copy of the corpus in RAM, so five at once need more
@@ -211,7 +220,8 @@ uv run python -m semdn.e1_matrix_bytes --per-ds 50     # -> outputs/e1_matrix_by
 
 Outputs: `data/e1/matrix_llm_<dataset>.jsonl` (chosen passages), `matrix_llm_{,qwen3_32b_}quality.jsonl`
 (means), `matrix_llm_{,qwen3_32b_}preds.jsonl` (per-question answers and F1),
-`matrix_llm_{,qwen3_32b_}significance.json`.
+`matrix_llm_{,qwen3_32b_}significance.json` (F1 tests), and `judge_matrix_llm_{qwen25_7b,qwen3_32b}_{.raw.jsonl,significance.json}`
+(judge labels and McNemar tests).
 
 ### Delivery gap (§6.3, paragraph 2)
 
