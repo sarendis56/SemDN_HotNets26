@@ -378,16 +378,18 @@ For any question, please contact the first author at peichunhua@link.cuhk.edu.cn
 
 If you find our paper inspiring and helpful to your research, please consider citing:
 ```latex
-@article{hua2026semantics,
+@inproceedings{hua2026semantics,
   title={Semantics Delivery Network: Rethinking Web Retrieval Infrastructure for LLM Agents},
   author={Peichun Hua and Yunming Xiao},
-  journal={CoRR},
-  volume={abs/2609.22486},
+  booktitle={The 25th ACM Workshop on Hot Topics in Networks (HotNets '26)},
   year={2026},
-  url={https://arxiv.org/abs/2609.22486},
-  doi={10.48550/arXiv.2609.22486},
-  eprinttype={arXiv},
-  eprint={2609.22486},
-  primaryClass={cs.NI},
+  publisher={Association for Computing Machinery},
+  address={New York, NY, USA},
+  url={https://doi.org/10.1145/3847290.3859940},
+  doi={10.1145/3847290.3859940},
+  numpages={13},
+  keywords={Content Delivery Networks, Retrieval-Augmented Generation, Agentic Search, Semantic Caching, Vector Search},
+  location={Salt Lake City, UT, USA},
+  series={HotNets '26}
 }
 ```
